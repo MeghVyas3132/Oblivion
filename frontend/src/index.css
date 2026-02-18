@@ -1,0 +1,212 @@
+:root {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #f5f8ff;
+  --panel-bg: rgba(8, 12, 20, 0.72);
+  --panel-border: rgba(255, 255, 255, 0.2);
+  --panel-input-border: rgba(255, 255, 255, 0.25);
+  --panel-button-bg: rgba(255, 255, 255, 0.08);
+  --panel-button-border: rgba(255, 255, 255, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root,
+.app-shell {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0f1727;
+}
+
+.canvas-wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.hud-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  backdrop-filter: blur(3px);
+  transition: border-color 240ms ease, background-color 240ms ease, transform 240ms ease;
+  animation: panel-enter 280ms ease;
+}
+
+.instructions-panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  width: min(280px, calc(100% - 32px));
+}
+
+.prompt-panel {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: min(360px, calc(100% - 32px));
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.prompt-panel textarea {
+  width: 100%;
+  border: 1px solid var(--panel-input-border);
+  border-radius: 6px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #f5f8ff;
+  resize: vertical;
+  min-height: 72px;
+  transition: border-color 220ms ease;
+}
+
+.prompt-panel textarea:focus-visible {
+  outline: none;
+  border-color: rgba(166, 206, 255, 0.9);
+}
+
+.prompt-panel button {
+  border: 1px solid var(--panel-button-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #f5f8ff;
+  background: var(--panel-button-bg);
+  cursor: pointer;
+  transition: background-color 220ms ease, border-color 220ms ease;
+}
+
+.prompt-panel button:hover:enabled {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.prompt-panel button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.director-panel {
+  position: absolute;
+  right: 16px;
+  top: 210px;
+  width: min(260px, calc(100% - 32px));
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.director-panel button {
+  border: 1px solid var(--panel-button-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #f5f8ff;
+  background: var(--panel-button-bg);
+  cursor: pointer;
+  transition: background-color 220ms ease, border-color 220ms ease;
+}
+
+.director-panel button:hover:enabled {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.director-panel button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.game-state-panel {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  width: min(420px, calc(100% - 32px));
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.panel-title {
+  font-size: 14px;
+  letter-spacing: 0.2px;
+}
+
+.state-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px 10px;
+}
+
+.state-grid > div:nth-child(odd) {
+  opacity: 0.82;
+}
+
+.tension-meter-track {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.tension-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4bcc8f 0%, #f1b14f 55%, #db5f5f 100%);
+  border-radius: inherit;
+  transition: width 420ms ease;
+}
+
+.reasoning-box {
+  padding: 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.04);
+  line-height: 1.45;
+}
+
+@keyframes panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .instructions-panel {
+    width: calc(100% - 32px);
+  }
+
+  .prompt-panel {
+    width: calc(100% - 32px);
+    top: auto;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+  }
+
+  .director-panel {
+    top: 166px;
+    right: 16px;
+    width: min(220px, calc(100% - 32px));
+  }
+
+  .game-state-panel {
+    top: 290px;
+    bottom: auto;
+  }
+}
