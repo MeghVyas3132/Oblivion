@@ -6,6 +6,9 @@ import Ground from './Ground';
 import EnvironmentObjects from './EnvironmentObjects';
 import EnemyMarkers from './EnemyMarkers';
 import ScenicBackdrop from './ScenicBackdrop';
+import { DIRECTIONAL_SHADOW_CONFIG } from '../graphics/lightingSetup';
+import HdriEnvironment from '../graphics/HdriEnvironment';
+import ShadowEnhancement from '../graphics/ShadowEnhancement';
 
 const BACKDROP_COLOR = {
   ruins: '#6f7b8d',
@@ -14,6 +17,14 @@ const BACKDROP_COLOR = {
   city: '#5c6779'
 };
 
+const AMBIENT_SCALE = 0.42;
+const MAX_AMBIENT_INTENSITY = 0.34;
+
+function getAmbientIntensity(value) {
+  const scaled = value * AMBIENT_SCALE;
+  return Math.min(MAX_AMBIENT_INTENSITY, Math.max(0.02, scaled));
+}
+
 export default function WorldBlueprintRenderer({ runtime }) {
   const { scene } = useThree();
   const fogRef = useRef(null);
@@ -21,7 +32,7 @@ export default function WorldBlueprintRenderer({ runtime }) {
   const directionalLightRef = useRef(null);
 
   const scalarCurrentRef = useRef({
-    ambientIntensity: runtime.lighting.ambientIntensity,
+    ambientIntensity: getAmbientIntensity(runtime.lighting.ambientIntensity),
     directionalIntensity: runtime.lighting.directionalIntensity,
     fogNear: runtime.fog.near,
     fogFar: runtime.fog.far
@@ -44,7 +55,7 @@ export default function WorldBlueprintRenderer({ runtime }) {
 
   useEffect(() => {
     scalarTargetRef.current = {
-      ambientIntensity: runtime.lighting.ambientIntensity,
+      ambientIntensity: getAmbientIntensity(runtime.lighting.ambientIntensity),
       directionalIntensity: runtime.lighting.directionalIntensity,
       fogNear: runtime.fog.near,
       fogFar: runtime.fog.far
@@ -88,22 +99,24 @@ export default function WorldBlueprintRenderer({ runtime }) {
   return (
     <>
       <fog ref={fogRef} attach="fog" args={[runtime.fog.color, runtime.fog.near, runtime.fog.far]} />
-      <ambientLight ref={ambientLightRef} intensity={runtime.lighting.ambientIntensity} />
-      <hemisphereLight color="#dbe7ff" groundColor="#334155" intensity={0.28} />
+      <HdriEnvironment environmentType={runtime.environmentType} intensity={1} />
+      <ambientLight ref={ambientLightRef} intensity={getAmbientIntensity(runtime.lighting.ambientIntensity)} />
       <directionalLight
         ref={directionalLightRef}
         castShadow
         intensity={runtime.lighting.directionalIntensity}
         position={runtime.lighting.directionalPosition}
-        shadow-mapSize-width={4096}
-        shadow-mapSize-height={4096}
-        shadow-camera-left={-35}
-        shadow-camera-right={35}
-        shadow-camera-top={35}
-        shadow-camera-bottom={-35}
-        shadow-camera-near={1}
-        shadow-camera-far={90}
-        shadow-bias={-0.0003}
+        shadow-mapSize-width={DIRECTIONAL_SHADOW_CONFIG.mapSize}
+        shadow-mapSize-height={DIRECTIONAL_SHADOW_CONFIG.mapSize}
+        shadow-camera-left={-DIRECTIONAL_SHADOW_CONFIG.cameraFrustum}
+        shadow-camera-right={DIRECTIONAL_SHADOW_CONFIG.cameraFrustum}
+        shadow-camera-top={DIRECTIONAL_SHADOW_CONFIG.cameraFrustum}
+        shadow-camera-bottom={-DIRECTIONAL_SHADOW_CONFIG.cameraFrustum}
+        shadow-camera-near={DIRECTIONAL_SHADOW_CONFIG.near}
+        shadow-camera-far={DIRECTIONAL_SHADOW_CONFIG.far}
+        shadow-bias={DIRECTIONAL_SHADOW_CONFIG.bias}
+        shadow-normalBias={DIRECTIONAL_SHADOW_CONFIG.normalBias}
+        shadow-radius={DIRECTIONAL_SHADOW_CONFIG.radius}
       />
       <Sky
         sunPosition={runtime.lighting.sunPosition}
@@ -114,8 +127,9 @@ export default function WorldBlueprintRenderer({ runtime }) {
       />
 
       <Ground color={runtime.groundColor} environmentType={runtime.environmentType} />
+      <ShadowEnhancement />
       <ScenicBackdrop color={BACKDROP_COLOR[runtime.environmentType] ?? BACKDROP_COLOR.ruins} />
-      <EnvironmentObjects objectList={runtime.objectList} />
+      <EnvironmentObjects objectList={runtime.objectList} environmentType={runtime.environmentType} />
       <EnemyMarkers enemies={runtime.enemyMarkers} />
     </>
   );

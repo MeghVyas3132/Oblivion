@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { RigidBody, CuboidCollider } from '@react-three/rapier';
 import { getSurfaceTextures } from '../utils/proceduralTextures';
+import { resolveMaterialProfile, resolveMaterialTextureOptions } from '../graphics/materials';
 
 const DEFAULT_GROUND_SIZE = 40;
 
@@ -22,8 +23,37 @@ function createRubble(size) {
 export default function Ground({ color = '#324458', size = DEFAULT_GROUND_SIZE, environmentType = 'ruins' }) {
   const thickness = 0.3;
   const rubble = useMemo(() => createRubble(size), [size]);
-  const textures = useMemo(() => getSurfaceTextures(environmentType), [environmentType]);
-  const rubbleTextures = useMemo(() => getSurfaceTextures('stone'), []);
+  const groundTextureOptions = resolveMaterialTextureOptions(environmentType, 'high');
+  const rubbleTextureOptions = resolveMaterialTextureOptions('stone', 'standard');
+  const groundResolution = groundTextureOptions.resolution;
+  const groundRepeatX = groundTextureOptions.repeat[0];
+  const groundRepeatY = groundTextureOptions.repeat[1];
+  const rubbleResolution = rubbleTextureOptions.resolution;
+  const rubbleRepeatX = rubbleTextureOptions.repeat[0];
+  const rubbleRepeatY = rubbleTextureOptions.repeat[1];
+  const groundMaterial = resolveMaterialProfile(environmentType);
+  const rubbleMaterial = resolveMaterialProfile('stone');
+  const textures = useMemo(
+    () =>
+      getSurfaceTextures(environmentType, {
+        resolution: groundResolution,
+        repeat: [groundRepeatX, groundRepeatY]
+      }),
+    [environmentType, groundResolution, groundRepeatX, groundRepeatY]
+  );
+  const rubbleTextures = useMemo(
+    () =>
+      getSurfaceTextures('stone', {
+        resolution: rubbleResolution,
+        repeat: [rubbleRepeatX, rubbleRepeatY]
+      }),
+    [rubbleResolution, rubbleRepeatX, rubbleRepeatY]
+  );
+
+  const ensureUv2 = (geometry) => {
+    if (!geometry || !geometry.attributes?.uv || geometry.attributes.uv2) return;
+    geometry.setAttribute('uv2', geometry.attributes.uv);
+  };
 
   return (
     <>
@@ -36,15 +66,21 @@ export default function Ground({ color = '#324458', size = DEFAULT_GROUND_SIZE, 
       </RigidBody>
 
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.001, 0]}>
-        <planeGeometry args={[size, size, 1, 1]} />
+        <planeGeometry args={[size, size, 1, 1]} onUpdate={ensureUv2} />
         <meshStandardMaterial
           color={color}
           map={textures.colorMap}
           roughnessMap={textures.roughnessMap}
+          metalnessMap={textures.metalnessMap}
+          normalMap={textures.normalMap}
+          aoMap={textures.aoMap}
           bumpMap={textures.bumpMap}
-          bumpScale={0.2}
-          roughness={0.96}
-          metalness={0.05}
+          bumpScale={groundMaterial.bumpScale}
+          roughness={groundMaterial.roughness}
+          metalness={groundMaterial.metalness}
+          normalScale={[groundMaterial.normalScale, groundMaterial.normalScale]}
+          aoMapIntensity={groundMaterial.aoMapIntensity}
+          envMapIntensity={groundMaterial.envMapIntensity}
         />
       </mesh>
 
@@ -78,15 +114,21 @@ export default function Ground({ color = '#324458', size = DEFAULT_GROUND_SIZE, 
           rotation={rock.rotation}
           scale={rock.scale}
         >
-          <dodecahedronGeometry args={[1, 0]} />
+          <dodecahedronGeometry args={[1, 0]} onUpdate={ensureUv2} />
           <meshStandardMaterial
             color="#7f8997"
             map={rubbleTextures.colorMap}
             roughnessMap={rubbleTextures.roughnessMap}
+            metalnessMap={rubbleTextures.metalnessMap}
+            normalMap={rubbleTextures.normalMap}
+            aoMap={rubbleTextures.aoMap}
             bumpMap={rubbleTextures.bumpMap}
-            bumpScale={0.14}
-            roughness={0.92}
-            metalness={0.06}
+            bumpScale={rubbleMaterial.bumpScale}
+            roughness={rubbleMaterial.roughness}
+            metalness={rubbleMaterial.metalness}
+            normalScale={[rubbleMaterial.normalScale, rubbleMaterial.normalScale]}
+            aoMapIntensity={rubbleMaterial.aoMapIntensity}
+            envMapIntensity={rubbleMaterial.envMapIntensity}
           />
         </mesh>
       ))}

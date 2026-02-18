@@ -89,6 +89,46 @@ npm install
 npm run dev
 ```
 
+Asset validation (after you drop GLBs):
+
+```bash
+cd frontend
+npm run assets:check
+```
+
+## High-Fidelity Asset Paths (Exact)
+
+Drop scanned PBR GLBs and Mixamo humanoids at these exact locations under `frontend/public/assets/3d`:
+
+- `forest/tree_oak_01.glb`
+- `forest/tree_oak_02.glb`
+- `forest/tree_pine_01.glb`
+- `urban/building_midrise_01.glb`
+- `urban/building_tower_01.glb`
+- `urban/streetlight_modern_01.glb`
+- `urban/streetlight_old_01.glb`
+- `urban/city_tree_01.glb`
+- `vehicles/sedan_01.glb`
+- `vehicles/suv_01.glb`
+- `humans/civilian_idle_01.glb`
+- `humans/civilian_idle_02.glb`
+- `humans/civilian_walk_01.glb`
+- `ruins/ruins_arch_01.glb`
+- `desert/palm_01.glb`
+- `desert/building_low_01.glb`
+
+HDRI files for realistic image-based lighting (`frontend/public/assets/hdr`):
+
+- `forest_day_2k.hdr`
+- `city_night_2k.hdr`
+- `desert_sunset_2k.hdr`
+- `ruins_overcast_2k.hdr`
+
+Asset runtime notes:
+
+- GLTF loader supports Draco-compressed `.glb` assets.
+- Distance-based LOD fallback is enabled for heavy semantic props (`tree`, `human`, `building`, `streetlight`, `car`) to maintain runtime FPS.
+
 ## API Endpoints
 
 - `POST /generate-world`
@@ -110,3 +150,4 @@ All AI responses are handled as strict JSON with fallback JSON if provider call 
 
 - `.env` is gitignored.
 - If no API key is provided (or provider fails), backend falls back to deterministic mock JSON.
+- High-fidelity scanned GLB + Mixamo assets should be placed under `frontend/public/assets/3d` using the exact paths listed in `frontend/public/assets/3d/README.md`.

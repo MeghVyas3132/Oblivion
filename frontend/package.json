@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "assets:check": "node scripts/verify-assets.mjs"
   },
   "dependencies": {
+    "@react-three/postprocessing": "^3.0.4",
     "@react-three/drei": "^10.0.0",
     "@react-three/fiber": "^9.1.0",
     "@react-three/rapier": "^2.1.0",
+    "postprocessing": "^6.37.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "three": "^0.174.0"
